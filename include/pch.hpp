@@ -9,15 +9,6 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
-#include <functional>
-#include <algorithm>
-#include <map>
-#include <unordered_map>
-#include <set>
-#include <unordered_set>
-#include <array>
-#include <optional>
-#include <variant>
 
 // C standard library
 #include <cstdint>
