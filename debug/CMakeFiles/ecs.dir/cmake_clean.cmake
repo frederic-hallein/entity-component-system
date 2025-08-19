@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/ecs.dir/cmake_pch.hxx.gch"
+  "CMakeFiles/ecs.dir/cmake_pch.hxx.gch.d"
   "CMakeFiles/ecs.dir/src/main.cpp.o"
   "CMakeFiles/ecs.dir/src/main.cpp.o.d"
   "ecs"

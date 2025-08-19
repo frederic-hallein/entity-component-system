@@ -4,7 +4,11 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/frederich/dev/ecs/libs/glfw/include
+CXX_INCLUDES = -I/home/frederich/dev/ecs/include -I/home/frederich/dev/ecs/libs/glfw/include
 
 CXX_FLAGS = -O3 -DNDEBUG -std=gnu++20
+
+# PCH options: CMakeFiles/ecs.dir/cmake_pch.hxx.gch_OPTIONS = -Winvalid-pch;-x;c++-header;-include;/home/frederich/dev/ecs/release/CMakeFiles/ecs.dir/cmake_pch.hxx
+
+# PCH options: CMakeFiles/ecs.dir/src/main.cpp.o_OPTIONS = -Winvalid-pch;-include;/home/frederich/dev/ecs/release/CMakeFiles/ecs.dir/cmake_pch.hxx
 

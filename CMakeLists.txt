@@ -11,11 +11,15 @@ file(GLOB SOURCES
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+target_precompile_headers(${PROJECT_NAME} PRIVATE include/pch.hpp)
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PRIVATE _DEBUG)
 endif()
 
 add_subdirectory(libs/glfw)
-
-target_include_directories(${PROJECT_NAME} PUBLIC libs/glfw/include)
+target_include_directories(${PROJECT_NAME} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    libs/glfw/include
+)
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw)

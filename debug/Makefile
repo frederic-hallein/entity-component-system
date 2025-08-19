@@ -213,6 +213,21 @@ update_mappings/fast:
 	$(MAKE) $(MAKESILENT) -f libs/glfw/src/CMakeFiles/update_mappings.dir/build.make libs/glfw/src/CMakeFiles/update_mappings.dir/build
 .PHONY : update_mappings/fast
 
+# target to build an object file
+cmake_pch.hxx.gch:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecs.dir/build.make CMakeFiles/ecs.dir/cmake_pch.hxx.gch
+.PHONY : cmake_pch.hxx.gch
+
+# target to preprocess a source file
+cmake_pch.hxx.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecs.dir/build.make CMakeFiles/ecs.dir/cmake_pch.hxx.i
+.PHONY : cmake_pch.hxx.i
+
+# target to generate assembly for a file
+cmake_pch.hxx.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecs.dir/build.make CMakeFiles/ecs.dir/cmake_pch.hxx.s
+.PHONY : cmake_pch.hxx.s
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -253,6 +268,9 @@ help:
 	@echo "... update_mappings"
 	@echo "... ecs"
 	@echo "... glfw"
+	@echo "... cmake_pch.hxx.gch"
+	@echo "... cmake_pch.hxx.i"
+	@echo "... cmake_pch.hxx.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
