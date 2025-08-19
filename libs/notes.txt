@@ -1,0 +1,2 @@
+*** Libraries Folder ***
+Directory for only libraries.

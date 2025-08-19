@@ -1,0 +1,2 @@
+*** Tests ***
+Directory for the tests cases.

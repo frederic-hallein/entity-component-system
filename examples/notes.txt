@@ -1,0 +1,2 @@
+*** Examples Folder ***
+Directory for the samples and the examples.
