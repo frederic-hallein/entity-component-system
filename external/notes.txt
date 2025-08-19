@@ -1,2 +1,0 @@
-*** External Folder ***
-Directory for anything third party. (e.g. GLFW, ImGUI)

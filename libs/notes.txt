@@ -1,2 +1,2 @@
 *** Libraries Folder ***
-Directory for only libraries.
+Directory for the submodules build by default (e.g. GLFW via git submodules).
