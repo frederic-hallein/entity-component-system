@@ -22,7 +22,7 @@
 #include "system_info.hpp"
 
 // Third-party libraries
-#include <glad/glad.h>
+#include <glad.h>
 #include <GLFW/glfw3.h>
 
 #endif
