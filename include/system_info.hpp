@@ -4,14 +4,30 @@
 #include "logger.hpp"
 #include "common.hpp"
 
-void printSystemInfo() {
-#ifdef _DEBUG
-    LOG_INFO("=== System Information ===");
+void printBuiltType(cstr builtType) {
+    LOG_INFO("Built Type: ", builtType);
+}
 
-    // C++ Standard
-    LOG_INFO("C++ Standard: ", __cplusplus);
+void printCppStandard() {
+    i64 cppStandard = __cplusplus;
+    if (cppStandard >= 202302L) {
+        LOG_INFO("C++ Standard: C++23 (", cppStandard, ")");
+    } else if (cppStandard >= 202002L) {
+        LOG_INFO("C++ Standard: C++20 (", cppStandard, ")");
+    } else if (cppStandard >= 201703L) {
+        LOG_INFO("C++ Standard: C++17 (", cppStandard, ")");
+    } else if (cppStandard >= 201402L) {
+        LOG_INFO("C++ Standard: C++14 (", cppStandard, ")");
+    } else if (cppStandard >= 201103L) {
+        LOG_INFO("C++ Standard: C++11 (", cppStandard, ")");
+    } else if (cppStandard >= 199711L) {
+        LOG_INFO("C++ Standard: C++98/03 (", cppStandard, ")");
+    } else {
+        LOG_INFO("C++ Standard: Pre-standard (", cppStandard, ")");
+    }
+}
 
-    // Compiler information
+void printCompilerInfo() {
     #if defined(__clang__)
         LOG_INFO("Compiler: Clang ", __clang_major__, ".", __clang_minor__, ".", __clang_patchlevel__);
     #elif defined(__GNUC__)
@@ -21,11 +37,9 @@ void printSystemInfo() {
     #else
         LOG_INFO("Compiler: Unknown");
     #endif
+}
 
-    // Build type
-    LOG_INFO("Mode: Debug");
-
-    // Platform information
+void printPlatformInfo() {
     #ifdef _WIN32
         #ifdef _WIN64
             LOG_INFO("Platform: Windows (64-bit)");
@@ -41,8 +55,9 @@ void printSystemInfo() {
     #else
         LOG_INFO("Platform: Unknown");
     #endif
+}
 
-    // Architecture
+void printArchitectureInfo() {
     #if defined(__x86_64__) || defined(_M_X64)
         LOG_INFO("Architecture: x64");
     #elif defined(__i386__) || defined(_M_IX86)
@@ -54,8 +69,23 @@ void printSystemInfo() {
     #else
         LOG_INFO("Architecture: Unknown");
     #endif
+}
 
+void printSystemInfo() {
+    LOG_INFO("=== System Information ===");
+    printCppStandard();
+    printCompilerInfo();
+    printPlatformInfo();
+    printArchitectureInfo();
     LOG_INFO("===========================\n");
+}
+
+void printInfo() {
+#ifdef _DEBUG
+    printBuiltType("DEBUG\n");
+    printSystemInfo();
+#else
+    printBuiltType("RELEASE\n");
 #endif
 }
 

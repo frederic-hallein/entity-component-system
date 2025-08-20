@@ -2,6 +2,7 @@
 
 static void processInput(GLFWwindow *window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        LOG_DEBUG("Escape key pressed, closing window");
         glfwSetWindowShouldClose(window, true);
 }
 
@@ -10,7 +11,7 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 }
 
 int main() {
-    printSystemInfo();
+    printInfo();
 
     GLFWwindow* window;
     if (!glfwInit())
@@ -41,8 +42,8 @@ int main() {
     // select opengl version
     int major, minor, rev;
     glfwGetVersion(&major, &minor, &rev);
-    LOG_DEBUG("GLFW Version: ", major, '.' , minor, rev);
-    LOG_DEBUG("GLSL Version: ", glGetString(GL_SHADING_LANGUAGE_VERSION));
+    LOG_INFO("GLFW Version: ", major, '.' , minor, rev);
+    LOG_INFO("GLSL Version: ", glGetString(GL_SHADING_LANGUAGE_VERSION), '\n');
 
     while (!glfwWindowShouldClose(window)) {
         // input
