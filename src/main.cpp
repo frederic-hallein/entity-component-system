@@ -1,6 +1,7 @@
 #include "pch.hpp"
 
 #include "entityManager.hpp"
+#include "componentManager.hpp"
 
 // static void processInput(GLFWwindow *window) {
 //     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -15,10 +16,20 @@
 constexpr u64 MAX_ENTITIES = 1000000;
 using EntityIDType = std::remove_const_t<decltype(MAX_ENTITIES)>;
 
+constexpr u32 MAX_COMPONENTS = 100;
+
 int main() {
     printInfo();
 
-    auto entityManager = std::make_unique<ecs::EntityManager<EntityIDType, MAX_ENTITIES>>();
+    ecs::EntityManager<EntityIDType, MAX_ENTITIES> entityManager;
+    ecs::ComponentManager<EntityIDType, MAX_ENTITIES> componentManager;
+
+    // auto entity = entityManager.createEntity();
+
+    std::vector<ecs::Position> positions = {{1, 2}, {3, 4}};
+    // componentManager.setComponents(entity.id, positions);
+
+
 
 
 

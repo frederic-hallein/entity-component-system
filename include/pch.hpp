@@ -10,6 +10,8 @@
 #include <iomanip>
 #include <sstream>
 #include <map>
+#include <unordered_map>
+#include <any>
 
 // C standard library
 #include <cstdint>
