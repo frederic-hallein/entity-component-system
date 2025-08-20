@@ -4,11 +4,11 @@
 #include "logger.hpp"
 #include "common.hpp"
 
-void printBuiltType(cstr builtType) {
+inline void printBuiltType(cstr builtType) {
     LOG_INFO("Built Type: ", builtType);
 }
 
-void printCppStandard() {
+inline void printCppStandard() {
     i64 cppStandard = __cplusplus;
     if (cppStandard >= 202302L) {
         LOG_INFO("C++ Standard: C++23 (", cppStandard, ")");
@@ -27,7 +27,7 @@ void printCppStandard() {
     }
 }
 
-void printCompilerInfo() {
+inline void printCompilerInfo() {
     #if defined(__clang__)
         LOG_INFO("Compiler: Clang ", __clang_major__, ".", __clang_minor__, ".", __clang_patchlevel__);
     #elif defined(__GNUC__)
@@ -39,7 +39,7 @@ void printCompilerInfo() {
     #endif
 }
 
-void printPlatformInfo() {
+inline void printPlatformInfo() {
     #ifdef _WIN32
         #ifdef _WIN64
             LOG_INFO("Platform: Windows (64-bit)");
@@ -57,7 +57,7 @@ void printPlatformInfo() {
     #endif
 }
 
-void printArchitectureInfo() {
+inline void printArchitectureInfo() {
     #if defined(__x86_64__) || defined(_M_X64)
         LOG_INFO("Architecture: x64");
     #elif defined(__i386__) || defined(_M_IX86)
@@ -71,7 +71,7 @@ void printArchitectureInfo() {
     #endif
 }
 
-void printSystemInfo() {
+inline void printSystemInfo() {
     LOG_INFO("=== System Information ===");
     printCppStandard();
     printCompilerInfo();
@@ -80,7 +80,7 @@ void printSystemInfo() {
     LOG_INFO("===========================\n");
 }
 
-void printInfo() {
+inline void printInfo() {
 #ifdef _DEBUG
     printBuiltType("DEBUG\n");
     printSystemInfo();

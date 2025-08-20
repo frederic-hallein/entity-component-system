@@ -9,6 +9,7 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <map>
 
 // C standard library
 #include <cstdint>
@@ -19,7 +20,7 @@
 // project headers
 #include "common.hpp"
 #include "logger.hpp"
-#include "system_info.hpp"
+#include "project_info.hpp"
 
 // Third-party libraries
 #include <glad.h>
