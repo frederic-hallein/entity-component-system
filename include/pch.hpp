@@ -22,6 +22,7 @@
 #include "system_info.hpp"
 
 // Third-party libraries
-// #include <GLFW/glfw3.h>  // Uncomment when you need GLFW
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #endif
