@@ -14,21 +14,34 @@
 // }
 
 constexpr u64 MAX_ENTITIES = 1000000;
-using EntityIDType = std::remove_const_t<decltype(MAX_ENTITIES)>;
-
 constexpr u32 MAX_COMPONENTS = 100;
+
+using namespace ecs;
 
 int main() {
     printInfo();
 
-    ecs::EntityManager<EntityIDType, MAX_ENTITIES> entityManager;
-    ecs::ComponentManager<EntityIDType, MAX_ENTITIES> componentManager;
+    EntityManager<MAX_ENTITIES> entityManager;
+    ComponentManager<MAX_ENTITIES> componentManager;
 
-    // auto entity = entityManager.createEntity();
+    Position pos{100, 200};
+    Position pos2{130, 560};
 
-    std::vector<ecs::Position> positions = {{1, 2}, {3, 4}};
-    // componentManager.setComponents(entity.id, positions);
+    u64 playerId = 1;
+    componentManager.setComponent(playerId, pos);
+    componentManager.setComponent(playerId, pos2); //warn
 
+    if (auto* position = componentManager.getComponent<Position>(playerId)) {
+        LOG_INFO("Player at: ", position->x, ", ", position->y);
+    }
+
+    if (componentManager.getComponent<Health>(playerId)) {
+        // something
+    }
+
+    if (componentManager.hasComponent<Position>(playerId)) {
+        LOG_INFO("Has compnent Position");
+    }
 
 
 

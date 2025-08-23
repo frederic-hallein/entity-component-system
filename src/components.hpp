@@ -6,7 +6,11 @@
 namespace ecs {
     namespace components {
         struct Position {
-            u64 x, y;
+            f64 x, y;
+        };
+
+        struct Health {
+            u32 lifes;
         };
 
     }

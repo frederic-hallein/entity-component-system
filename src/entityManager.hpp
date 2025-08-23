@@ -5,33 +5,25 @@
 #include "componentManager.hpp"
 
 namespace ecs {
-    template<typename T>
     struct Entity {
-        T id;
+        u64 id;
     };
 
-    template<typename T, u64 MaxEntities>
+    template<u64 MaxEntities>
     class EntityManager {
     public:
         EntityManager() {
             mEntities.reserve(MaxEntities);
-            for (T i = 0; i < MaxEntities; ++i) {
-                mEntities.push_back({static_cast<T>(i)});
+            for (u64 i = 0; i < MaxEntities; ++i) {
+                mEntities.push_back({i});
             }
             LOG_INFO("Constructed ", MaxEntities, " Entities");
         }
 
-        // Entity<T> createEntity() {
-        //     if (mCurrentEntityIndex < MaxEntities) {
-        //         return mEntities[mCurrentEntityIndex++];
-        //     }
 
-        //     LOG_ERROR("Entity limit exceeded!");
-        //     return Entity<T>{static_cast<T>(-1)};
-        // }
 
     private:
-        std::vector<Entity<T>> mEntities;
+        std::vector<Entity> mEntities;
     };
 }
 

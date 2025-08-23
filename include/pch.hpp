@@ -12,6 +12,8 @@
 #include <map>
 #include <unordered_map>
 #include <any>
+#include <set>
+#include <typeindex>
 
 // C standard library
 #include <cstdint>
