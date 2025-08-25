@@ -5,11 +5,11 @@
 
 namespace ecs {
 
-    template<u64 MaxEntities, u16 Width, u16 Height>
+    template<cstr Title, u16 Width, u16 Height, u64 MaxEntities>
     class WindowSystem : public System<MaxEntities> {
     public:
-        WindowSystem(cstr title = "ECS Game")
-            : mTitle(title), mWindow(nullptr) {}
+        WindowSystem()
+            : mTitle(Title), mWindow(nullptr) {}
 
         void init() override {
             if (!glfwInit()) {
@@ -21,12 +21,11 @@ namespace ecs {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-            #ifdef __APPLE__
-                glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-            #endif
+        #ifdef __APPLE__
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+        #endif
 
             // Create window
-            // mWindow = glfwCreateWindow(mWidth, mHeight, mTitle, nullptr, nullptr);
             mWindow = glfwCreateWindow(Width, Height, mTitle, nullptr, nullptr);
             if (!mWindow) {
                 LOG_ERROR("Failed to create GLFW window");
@@ -79,14 +78,12 @@ namespace ecs {
         GLFWwindow* getWindow() const { return mWindow; }
 
     private:
-        // constexpr static u16 mWidth = Width;
-        // constexpr static u16 mHeight = Height;
         cstr mTitle;
         GLFWwindow* mWindow;
 
         void renderEntities() {
             // Simple rendering - iterate through entities with Position
-            for (u64 entityId = 0; entityId < 1000; ++entityId) {
+            for (u64 entityId = 0; entityId < MaxEntities; ++entityId) {
                 if (this->template entityHasComponents<Position>(entityId)) {
                     auto* position = this->mComponentManager->template getComponent<Position>(entityId);
                     if (position) {

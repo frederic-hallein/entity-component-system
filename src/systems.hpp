@@ -10,7 +10,7 @@ namespace ecs {
     template<u64 MaxEntities>
     class MovementSystem : public System<MaxEntities> {
     public:
-        void update(float deltaTime) override {
+        void update(f32 deltaTime) override {
             // Iterate through all entities (optimize this later)
             for (u64 entityId = 0; entityId < MaxEntities; ++entityId) {
                 if (this->template entityHasComponents<Position, Velocity>(entityId)) {
@@ -32,7 +32,7 @@ namespace ecs {
     template<u64 MaxEntities>
     class HealthSystem : public System<MaxEntities> {
     public:
-        void update(float deltaTime) override {
+        void update(f32 deltaTime) override {
             for (u64 entityId = 0; entityId < MaxEntities; ++entityId) {
                 if (this->template entityHasComponents<Health>(entityId)) {
                     auto* health = this->mComponentManager->template getComponent<Health>(entityId);
@@ -56,7 +56,7 @@ namespace ecs {
     template<u64 MaxEntities>
     class RenderSystem : public System<MaxEntities> {
     public:
-        void update(float deltaTime) override {
+        void update(f32 deltaTime) override {
             // This would integrate with your graphics system
             for (u64 entityId = 0; entityId < MaxEntities; ++entityId) {
                 if (this->template entityHasComponents<Position>(entityId)) {

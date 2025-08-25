@@ -31,7 +31,11 @@ namespace ecs {
             return nullptr;
         }
 
-        void updateSystems(float deltaTime) {
+        ComponentManager<MaxEntities>* getComponentManager() {
+            return mComponentManager;
+        }
+
+        void updateSystems(f32 deltaTime) {
             for (auto& system : mSystems) {
                 system->update(deltaTime);
             }
