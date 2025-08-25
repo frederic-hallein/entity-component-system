@@ -21,6 +21,16 @@ namespace ecs {
             LOG_INFO("Registered system: ", typeid(SystemType).name());
         }
 
+        template<typename SystemType>
+        SystemType* getSystem() {
+            for (auto& system : mSystems) {
+                if (auto* castedSystem = dynamic_cast<SystemType*>(system.get())) {
+                    return castedSystem;
+                }
+            }
+            return nullptr;
+        }
+
         void updateSystems(float deltaTime) {
             for (auto& system : mSystems) {
                 system->update(deltaTime);

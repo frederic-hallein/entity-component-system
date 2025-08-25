@@ -1,7 +1,6 @@
 #ifndef ENTITY_MANAGER_HPP
 #define ENTITY_MANAGER_HPP
 
-#include "pch.hpp"
 #include "componentManager.hpp"
 
 namespace ecs {
@@ -19,8 +18,6 @@ namespace ecs {
             }
             LOG_INFO("Constructed ", MaxEntities, " Entities");
         }
-
-
 
     private:
         std::vector<Entity> mEntities;
