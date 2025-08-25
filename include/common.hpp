@@ -22,8 +22,8 @@ using usize = size_t;
 using str = std::string;
 using cstr = const char*;
 
-// Common constants
-constexpr f32 PI = 3.14159265359f;
-constexpr f32 TAU = 2.0f * PI;
+// // Common constants
+// constexpr f32 PI = 3.14159265359f;
+// constexpr f32 TAU = 2.0f * PI;
 
 #endif

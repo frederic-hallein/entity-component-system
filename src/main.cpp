@@ -2,6 +2,8 @@
 
 #include "entityManager.hpp"
 #include "componentManager.hpp"
+#include "systemManager.hpp"
+#include "systems.hpp"
 
 // static void processInput(GLFWwindow *window) {
 //     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -23,27 +25,33 @@ int main() {
 
     EntityManager<MAX_ENTITIES> entityManager;
     ComponentManager<MAX_ENTITIES> componentManager;
+    SystemManager<MAX_ENTITIES> systemManager(&componentManager);
+
+    // Register systems
+    systemManager.registerSystem<MovementSystem<MAX_ENTITIES>>();
+    systemManager.registerSystem<HealthSystem<MAX_ENTITIES>>();
+    systemManager.registerSystem<RenderSystem<MAX_ENTITIES>>();
 
     Position pos{100, 200};
     Position pos2{130, 560};
+    Velocity vel{0, -10};
 
     u64 playerId = 1;
     componentManager.setComponent(playerId, pos);
     componentManager.setComponent(playerId, pos2); //warn
+    componentManager.setComponent(playerId, vel);
 
-    if (auto* position = componentManager.getComponent<Position>(playerId)) {
-        LOG_INFO("Player at: ", position->x, ", ", position->y);
+    // Game loop simulation
+    float deltaTime = 0.016f; // ~60 FPS
+    for (int frame = 0; frame < 100; ++frame) {
+        LOG_INFO("=== Frame ", frame, " ===");
+        systemManager.updateSystems(deltaTime);
+
+        // Add some delay to see the output
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-    if (componentManager.getComponent<Health>(playerId)) {
-        // something
-    }
-
-    if (componentManager.hasComponent<Position>(playerId)) {
-        LOG_INFO("Has compnent Position");
-    }
-
-
+    systemManager.shutdown();
 
 
 

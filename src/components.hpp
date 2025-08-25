@@ -9,6 +9,10 @@ namespace ecs {
             f64 x, y;
         };
 
+        struct Velocity {
+            f64 dx, dy;
+        };
+
         struct Health {
             u32 lifes;
         };

@@ -14,6 +14,7 @@
 #include <any>
 #include <set>
 #include <typeindex>
+#include <thread>
 
 // C standard library
 #include <cstdint>

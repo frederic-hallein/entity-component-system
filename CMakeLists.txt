@@ -41,3 +41,19 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     OpenGL::GL
     glad
 )
+
+# Testing configuration
+option(BUILD_TESTS "Build the tests" ON)
+
+if(BUILD_TESTS)
+    enable_testing()
+
+    # Prevent overriding the parent project's compiler/linker settings
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+    # Add googletest subdirectory
+    add_subdirectory(libs/googletest)
+
+    # Add tests subdirectory
+    add_subdirectory(tests)
+endif()
