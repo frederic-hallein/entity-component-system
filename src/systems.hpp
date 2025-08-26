@@ -21,7 +21,7 @@ namespace ecs {
                         position->x += velocity->dx * deltaTime;
                         position->y += velocity->dy * deltaTime;
 
-                        // LOG_DEBUG("Entity ", entityId, " moved to (", position->x, ", ", position->y, ")");
+                        LOG_DEBUG("Entity ", entityId, " moved to (", position->x, ", ", position->y, ")");
                     }
                 }
             }

@@ -18,7 +18,7 @@ namespace ecs {
     public:
         virtual ~System() = default;
 
-        virtual void update(float deltaTime) = 0;
+        virtual void update(f32 deltaTime) = 0;
         virtual void init() {}
         virtual void shutdown() {}
 

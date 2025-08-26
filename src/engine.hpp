@@ -4,35 +4,35 @@
 #include "entityManager.hpp"
 #include "componentManager.hpp"
 #include "systemManager.hpp"
-#include "timeSystem.hpp"
-#include "windowSystem.hpp"
+#include "timer.hpp"
+#include "window.hpp"
 #include "systems.hpp"
 
 namespace ecs {
-
-template<cstr Title, u16 WindowWidth, u16 WindowHeight, u64 MaxEntities>
     class Engine {
-    public:
-        Engine() {
+        // Amount entities
+        static constexpr u64 MAX_ENTITIES = 10;
+
+        public:
+        Engine(cstr title, u16 width, u16 height) {
             printInfo();
 
-            // Create ECS managers - Engine owns them
-            mEntityManager = std::make_unique<EntityManager<MaxEntities>>();
-            mComponentManager = std::make_unique<ComponentManager<MaxEntities>>();
-            mSystemManager = std::make_unique<SystemManager<MaxEntities>>(mComponentManager.get());
+            // Create window and timer
+            mWindow = std::make_unique<Window>(title, width, height);
+            mTimer = std::make_unique<Timer>();
+
+
+            // Create ECS managers
+            mEntityManager = std::make_unique<EntityManager<MAX_ENTITIES>>();
+            mComponentManager = std::make_unique<ComponentManager<MAX_ENTITIES>>();
+            mSystemManager = std::make_unique<SystemManager<MAX_ENTITIES>>(mComponentManager.get());
 
             // Register systems
-            mSystemManager->template registerSystem<WindowSystem<Title, WindowWidth, WindowHeight, MaxEntities>>();
-            mSystemManager->template registerSystem<TimeSystem<MaxEntities>>();
-            mSystemManager->template registerSystem<MovementSystem<MaxEntities>>();
-            mSystemManager->template registerSystem<HealthSystem<MaxEntities>>();
-            mSystemManager->template registerSystem<RenderSystem<MaxEntities>>();
+            mSystemManager->template registerSystem<MovementSystem<MAX_ENTITIES>>();
+            mSystemManager->template registerSystem<HealthSystem<MAX_ENTITIES>>();
+            mSystemManager->template registerSystem<RenderSystem<MAX_ENTITIES>>();
 
-            // Get system references
-            mTimeSystem = mSystemManager->template getSystem<TimeSystem<MaxEntities>>();
-            mWindowSystem = mSystemManager->template getSystem<WindowSystem<Title, WindowWidth, WindowHeight, MaxEntities>>();
-
-            // Setup test entities
+            // Setup test entities (TODO: move to some file format)
             u64 playerId = 1;
             Position pos{100, 200};
             Velocity vel{0, -10};
@@ -43,30 +43,34 @@ template<cstr Title, u16 WindowWidth, u16 WindowHeight, u64 MaxEntities>
         }
 
         void run() {
-            mTimeSystem->update(0.0f);
-            float deltaTime = mTimeSystem->getDeltaTime();
+            mTimer->start();
+            mWindow->render();
+            mTimer->end();
+
+            f32 deltaTime = mTimer->getDeltaTime();
             mSystemManager->updateSystems(deltaTime);
+
+            LOG_INFO("Render dt: ", mTimer->getDeltaTime() * 1000.0f, "ms");
+            LOG_INFO("FPS: ", mTimer->getFPS());
         }
 
-        // Check if window should close
         bool shouldClose() const {
-            return mWindowSystem->shouldClose();
+            return mWindow->shouldClose();
         }
 
-        // Shutdown method
         void shutdown() {
             LOG_INFO("Shutting down engine...");
             mSystemManager->shutdown();
+            mWindow->shutdown();
         }
 
     private:
-        std::unique_ptr<EntityManager<MaxEntities>> mEntityManager;
-        std::unique_ptr<ComponentManager<MaxEntities>> mComponentManager;
-        std::unique_ptr<SystemManager<MaxEntities>> mSystemManager;
-        TimeSystem<MaxEntities>* mTimeSystem;
-        WindowSystem<Title, WindowWidth, WindowHeight, MaxEntities>* mWindowSystem;
+        std::unique_ptr<Window> mWindow;
+        std::unique_ptr<Timer> mTimer;
+        std::unique_ptr<EntityManager<MAX_ENTITIES>> mEntityManager;
+        std::unique_ptr<ComponentManager<MAX_ENTITIES>> mComponentManager;
+        std::unique_ptr<SystemManager<MAX_ENTITIES>> mSystemManager;
     };
-
 }
 
 #endif
