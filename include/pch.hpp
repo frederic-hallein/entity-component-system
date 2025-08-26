@@ -9,6 +9,7 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
 #include <map>
 #include <unordered_map>
 #include <any>
@@ -30,5 +31,6 @@
 // Third-party libraries
 #include <glad.h>
 #include <GLFW/glfw3.h>
+#include <yaml-cpp/yaml.h>
 
 #endif

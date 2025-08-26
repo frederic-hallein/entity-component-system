@@ -10,17 +10,38 @@
 
 namespace ecs {
     class Engine {
-        // Amount entities
-        static constexpr u64 MAX_ENTITIES = 10;
+    static constexpr u64 MAX_ENTITIES = 10;
+    public:
 
-        public:
+        void loadEntities(const str& filename) {
+            if (!std::ifstream(filename)) {
+                LOG_ERROR("Could not open entity file: ", filename);
+                return;
+            }
+
+            YAML::Node entities = YAML::LoadFile(filename);
+            for (const auto& entityNode : entities) {
+                u64 id = entityNode["id"].as<u64>();
+                auto components = entityNode["components"];
+                if (components) {
+                    if (components["Position"]) {
+                        auto pos = components["Position"];
+                        mComponentManager->setComponent(id, Position{pos["x"].as<f32>(), pos["y"].as<f32>()});
+                    }
+                    if (components["Velocity"]) {
+                        auto vel = components["Velocity"];
+                        mComponentManager->setComponent(id, Velocity{vel["x"].as<f32>(), vel["y"].as<f32>()});
+                    }
+                }
+            }
+        }
+
         Engine(cstr title, u16 width, u16 height) {
             printInfo();
 
             // Create window and timer
             mWindow = std::make_unique<Window>(title, width, height);
             mTimer = std::make_unique<Timer>();
-
 
             // Create ECS managers
             mEntityManager = std::make_unique<EntityManager<MAX_ENTITIES>>();
@@ -32,12 +53,8 @@ namespace ecs {
             mSystemManager->template registerSystem<HealthSystem<MAX_ENTITIES>>();
             mSystemManager->template registerSystem<RenderSystem<MAX_ENTITIES>>();
 
-            // Setup test entities (TODO: move to some file format)
-            u64 playerId = 1;
-            Position pos{100, 200};
-            Velocity vel{0, -10};
-            mComponentManager->setComponent(playerId, pos);
-            mComponentManager->setComponent(playerId, vel);
+            // Setup entities
+            loadEntities("../data/entities.yaml");
 
             LOG_INFO("Engine initialized");
         }
@@ -50,7 +67,7 @@ namespace ecs {
             f32 deltaTime = mTimer->getDeltaTime();
             mSystemManager->updateSystems(deltaTime);
 
-            LOG_INFO("Render dt: ", mTimer->getDeltaTime() * 1000.0f, "ms");
+            LOG_DEBUG("Render dt: ", mTimer->getDeltaTime() * 1000.0f, "ms");
             LOG_INFO("FPS: ", mTimer->getFPS());
         }
 

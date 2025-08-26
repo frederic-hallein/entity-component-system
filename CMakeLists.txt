@@ -20,6 +20,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 add_subdirectory(libs/glad)
+add_subdirectory(libs/glfw)
+add_subdirectory(libs/yaml-cpp)
 
 # Configure GLFW build options
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -28,18 +30,19 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)  # Disable Wayland
 set(GLFW_BUILD_X11 ON CACHE BOOL "" FORCE)       # Enable X11
 
-add_subdirectory(libs/glfw)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     libs/glfw/include
     libs/glad
+    libs/yaml-cpp/include
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     glfw
     OpenGL::GL
     glad
+    yaml-cpp
 )
 
 # Testing configuration
@@ -48,12 +51,16 @@ option(BUILD_TESTS "Build the tests" ON)
 if(BUILD_TESTS)
     enable_testing()
 
-    # Prevent overriding the parent project's compiler/linker settings
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-    # Add googletest subdirectory
     add_subdirectory(libs/googletest)
-
-    # Add tests subdirectory
     add_subdirectory(tests)
+
+    # Add yaml-cpp include for tests
+    target_include_directories(ecs_tests PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        libs/glfw/include
+        libs/glad
+        libs/yaml-cpp/include
+    )
+    target_link_libraries(ecs_tests yaml-cpp)
 endif()

@@ -44,7 +44,7 @@ namespace ecs {
                 mTimer->start();
                 system->update(deltaTime);
                 mTimer->end();
-                LOG_INFO("System: ", typeid(*system).name(), " | Update dt: ", mTimer->getDeltaTime() * 1000.0f, "ms");
+                LOG_DEBUG("System: ", typeid(*system).name(), " | Update dt: ", mTimer->getDeltaTime() * 1000.0f, "ms");
             }
         }
 
