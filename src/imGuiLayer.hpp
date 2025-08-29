@@ -10,7 +10,8 @@ public:
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
-        ImGui::StyleColorsDark();
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;    // Enable multi-viewport
+        ImGui::StyleColorsClassic();
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 330");
     }

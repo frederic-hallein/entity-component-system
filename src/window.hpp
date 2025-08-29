@@ -9,17 +9,42 @@ public:
     void addImGuiWindows() {
         mImGuiLayer->addWindow([this]() {
             ImGui::Begin("Debug Window");
-            ImGui::Text("Stats:");
-            ImGui::Text("Delta Time: %.4f ms", mDeltaTime * 1000.0f);
-            ImGui::Text("FPS: %.2f", mFPS);
-            ImGui::End();
-        });
 
-        mImGuiLayer->addWindow([]() {
-            ImGui::Begin("Debug Window 2");
-            ImGui::Text("...");
-            static float f = 0.0f;
-            ImGui::SliderFloat("Float", &f, 0.0f, 1.0f);
+            ImGui::Text("Statistics:");
+            ImGui::Text("FPS: %.2f", mFPS);
+            ImGui::Text("dt: %.4f ms", mDeltaTime * 1000.0f);
+
+            static std::deque<f32> fpsHistory;
+
+            fpsHistory.push_back(mFPS);
+            if (fpsHistory.size() > 120) {
+                fpsHistory.pop_front();
+            }
+
+            std::vector<f32> fpsPlot(fpsHistory.begin(), fpsHistory.end());
+            ImVec2 plotSize(ImGui::GetContentRegionAvail().x, 100);
+            if (!fpsHistory.empty()) {
+                ImVec2 plotPos = ImGui::GetCursorScreenPos();
+                ImGui::PlotLines(
+                    "##fpsplot",
+                    fpsPlot.data(),
+                    fpsPlot.size(),
+                    0,
+                    nullptr,
+                    0.0f, 120.0f,
+                    plotSize
+                );
+
+                f32 y60 = plotSize.y * (1.0f - 60.0f / 120.0f);
+                ImVec2 p0 = ImGui::GetItemRectMin();
+                ImVec2 p1 = ImGui::GetItemRectMax();
+                ImGui::GetWindowDrawList()->AddLine(
+                    ImVec2(p0.x, p0.y + y60),
+                    ImVec2(p1.x, p0.y + y60),
+                    IM_COL32(255, 255, 0, 255),
+                    0.5f
+                );
+            }
             ImGui::End();
         });
     }
@@ -86,6 +111,16 @@ public:
         // Swap buffers and poll events
         glfwSwapBuffers(mWindow);
         glfwPollEvents();
+
+        // Multi-viewport support
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+
+            // Restore OpenGL context for main window
+            glfwMakeContextCurrent(mWindow);
+        }
     }
 
     void shutdown() {

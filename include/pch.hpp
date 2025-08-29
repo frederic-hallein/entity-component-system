@@ -17,6 +17,7 @@
 #include <typeindex>
 #include <thread>
 #include <functional>
+#include <deque>
 
 // C standard library
 #include <cstdint>
