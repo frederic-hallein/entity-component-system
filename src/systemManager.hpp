@@ -41,10 +41,10 @@ namespace ecs {
 
         void updateSystems(f32 deltaTime) {
             for (auto& system : mSystems) {
-                mTimer->start();
+                // mTimer->start();
                 system->update(deltaTime);
-                mTimer->end();
-                LOG_DEBUG("System: ", typeid(*system).name(), " | Update dt: ", mTimer->getDeltaTime() * 1000.0f, "ms");
+                // mTimer->end();
+                // LOG_DEBUG("System: ", typeid(*system).name(), " | Update dt: ", mTimer->getDeltaTime() * 1000.0f, "ms");
             }
         }
 

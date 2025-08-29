@@ -60,15 +60,17 @@ namespace ecs {
         }
 
         void run() {
+            // Rendering
             mTimer->start();
             mWindow->render();
             mTimer->end();
 
             f32 deltaTime = mTimer->getDeltaTime();
-            mSystemManager->updateSystems(deltaTime);
+            f32 fps = mTimer->getFPS();
+            mWindow->setStats(deltaTime, fps);
 
-            LOG_DEBUG("Render dt: ", mTimer->getDeltaTime() * 1000.0f, "ms");
-            LOG_INFO("FPS: ", mTimer->getFPS());
+            // Updating
+            mSystemManager->updateSystems(deltaTime);
         }
 
         bool shouldClose() const {

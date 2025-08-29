@@ -16,6 +16,7 @@
 #include <set>
 #include <typeindex>
 #include <thread>
+#include <functional>
 
 // C standard library
 #include <cstdint>
@@ -32,5 +33,8 @@
 #include <glad.h>
 #include <GLFW/glfw3.h>
 #include <yaml-cpp/yaml.h>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 #endif
