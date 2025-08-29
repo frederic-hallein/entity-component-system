@@ -10,7 +10,7 @@
 
 namespace ecs {
     class Engine {
-    static constexpr u64 MAX_ENTITIES = 10;
+    static constexpr u64 MAX_ENTITIES = 100000;
     public:
 
         void loadEntities(const str& filename) {

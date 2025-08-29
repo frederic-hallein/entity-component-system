@@ -15,6 +15,7 @@ namespace ecs {
             mEntities.reserve(MaxEntities);
             for (u64 i = 0; i < MaxEntities; ++i) {
                 mEntities.push_back({i});
+                LOG_DEBUG("ID = ", i);
             }
             LOG_INFO("Constructed ", MaxEntities, " Entities");
         }
