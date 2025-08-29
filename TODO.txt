@@ -1,5 +1,3 @@
 *** TO DO ***
 
-- Make a README with the following:
-    - Getting Started:
-        -
+- I am looping all systems and looping all entities. Can  I refactor it to loop all systems at once?

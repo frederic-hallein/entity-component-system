@@ -11,18 +11,18 @@ namespace ecs {
     class MovementSystem : public System<MaxEntities> {
     public:
         void update(f32 deltaTime) override {
-            // Iterate through all entities (optimize this later)
             for (u64 entityId = 0; entityId < MaxEntities; ++entityId) {
-                if (this->template entityHasComponents<Position, Velocity>(entityId)) {
-                    auto* position = this->mComponentManager->template getComponent<Position>(entityId);
-                    auto* velocity = this->mComponentManager->template getComponent<Velocity>(entityId);
+                bool hasComponents = this->template entityHasComponents<Position, Velocity>(entityId);
+                if (!hasComponents) {
+                    continue;
+                }
 
-                    if (position && velocity) {
-                        position->x += velocity->dx * deltaTime;
-                        position->y += velocity->dy * deltaTime;
-
-                        LOG_DEBUG("Entity ", entityId, " moved to (", position->x, ", ", position->y, ")");
-                    }
+                auto* position = this->mComponentManager->template getComponent<Position>(entityId);
+                auto* velocity = this->mComponentManager->template getComponent<Velocity>(entityId);
+                if (position && velocity) {
+                    position->x += velocity->dx * deltaTime;
+                    position->y += velocity->dy * deltaTime;
+                    LOG_DEBUG("Entity ", entityId, " moved to (", position->x, ", ", position->y, ")");
                 }
             }
         }
@@ -34,20 +34,22 @@ namespace ecs {
     public:
         void update(f32 deltaTime) override {
             for (u64 entityId = 0; entityId < MaxEntities; ++entityId) {
-                if (this->template entityHasComponents<Health>(entityId)) {
-                    auto* health = this->mComponentManager->template getComponent<Health>(entityId);
-
-                    // if (health && health->current < health->max) {
-                    //     health->current += health->regeneration * deltaTime;
-
-                    //     // Cap at max health
-                    //     if (health->current > health->max) {
-                    //         health->current = health->max;
-                    //     }
-
-                    //     LOG_DEBUG("Entity ", entityId, " health: ", health->current, "/", health->max);
-                    // }
+                bool hasComponents = this->template entityHasComponents<Health>(entityId);
+                if (!hasComponents) {
+                    continue;
                 }
+
+                auto* health = this->mComponentManager->template getComponent<Health>(entityId);
+                // if (health && health->current < health->max) {
+                //     health->current += health->regeneration * deltaTime;
+
+                //     // Cap at max health
+                //     if (health->current > health->max) {
+                //         health->current = health->max;
+                //     }
+
+                //     LOG_DEBUG("Entity ", entityId, " health: ", health->current, "/", health->max);
+                // }
             }
         }
     };
@@ -57,15 +59,17 @@ namespace ecs {
     class RenderSystem : public System<MaxEntities> {
     public:
         void update(f32 deltaTime) override {
-            // This would integrate with your graphics system
             for (u64 entityId = 0; entityId < MaxEntities; ++entityId) {
-                if (this->template entityHasComponents<Position>(entityId)) {
-                    auto* position = this->mComponentManager->template getComponent<Position>(entityId);
+                bool hasComponents = this->template entityHasComponents<Position>(entityId);
+                if (!hasComponents) {
+                    continue;
+                }
 
-                    if (position) {
-                        // Here you would call your rendering code
-                        LOG_DEBUG("Rendering entity ", entityId, " at (", position->x, ", ", position->y, ")");
-                    }
+                auto* position = this->mComponentManager->template getComponent<Position>(entityId);
+
+                if (position) {
+                    // call rendering code
+                    LOG_DEBUG("Rendering entity ", entityId, " at (", position->x, ", ", position->y, ")");
                 }
             }
         }

@@ -23,16 +23,20 @@ namespace ecs {
             for (const auto& entityNode : entities) {
                 u64 id = entityNode["id"].as<u64>();
                 auto components = entityNode["components"];
-                if (components) {
-                    if (components["Position"]) {
-                        auto pos = components["Position"];
-                        mComponentManager->setComponent(id, Position{pos["x"].as<f32>(), pos["y"].as<f32>()});
-                    }
-                    if (components["Velocity"]) {
-                        auto vel = components["Velocity"];
-                        mComponentManager->setComponent(id, Velocity{vel["x"].as<f32>(), vel["y"].as<f32>()});
-                    }
+                if (!components) {
+                    LOG_DEBUG("ID = ", id, " does not have components.");
+                    return;
                 }
+
+                if (components["Position"]) {
+                    auto pos = components["Position"];
+                    mComponentManager->setComponent(id, Position{pos["x"].as<f32>(), pos["y"].as<f32>()});
+                }
+                if (components["Velocity"]) {
+                    auto vel = components["Velocity"];
+                    mComponentManager->setComponent(id, Velocity{vel["x"].as<f32>(), vel["y"].as<f32>()});
+                }
+
             }
         }
 

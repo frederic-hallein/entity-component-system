@@ -93,7 +93,7 @@ public:
         LOG_INFO("OpenGL Version: ", glGetString(GL_VERSION));
     }
 
-    void setStats(float deltaTime, float fps) {
+    void setStats(f32 deltaTime, f32 fps) {
         mDeltaTime = deltaTime;
         mFPS = fps;
     }
