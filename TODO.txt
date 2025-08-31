@@ -1,3 +1,5 @@
 *** TO DO ***
 
-- I am looping all systems and looping all entities. Can  I refactor it to loop all systems at once?
+- disable logger in unit tests
+- check if tests are run in debug or release (running tests in debug seems to not print LOG_DEBUG)
+- if I dont need YAML, remove from project

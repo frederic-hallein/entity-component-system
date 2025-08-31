@@ -12,6 +12,7 @@
 #include <fstream>
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 #include <any>
 #include <set>
 #include <typeindex>

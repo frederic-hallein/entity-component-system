@@ -9,11 +9,11 @@
 #define COLOR_BLUE    "\033[34m"
 
 template<typename... Args>
-void debugLog(
-    const std::string& level,
-    const char* color,
-    const char* file,
-    int line,
+void logger(
+    const str& level,
+    cstr color,
+    cstr file,
+    i64 line,
     Args&&... args
 )
 {
@@ -27,13 +27,13 @@ void debugLog(
 }
 
 #ifdef _DEBUG
-    #define LOG_DEBUG(...) debugLog("[DEBUG]", COLOR_BLUE, __FILE__, __LINE__, __VA_ARGS__)
+    #define LOG_DEBUG(...) logger("[DEBUG]", COLOR_BLUE, __FILE__, __LINE__, __VA_ARGS__)
 #else
     #define LOG_DEBUG(...)
 #endif
 
-#define LOG_INFO(...)  debugLog(" [INFO]", COLOR_GREEN, __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_WARN(...)  debugLog(" [WARN]", COLOR_YELLOW, __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_ERROR(...) debugLog("[ERROR]", COLOR_RED, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_INFO(...)  logger(" [INFO]", COLOR_GREEN, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_WARN(...)  logger(" [WARN]", COLOR_YELLOW, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_ERROR(...) logger("[ERROR]", COLOR_RED, __FILE__, __LINE__, __VA_ARGS__)
 
 #endif

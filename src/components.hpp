@@ -2,24 +2,34 @@
 #define COMPONENTS_HPP
 
 #include "pch.hpp"
-
 namespace ecs {
-    namespace components {
-        struct Position {
-            f64 x, y;
-        };
+    struct Position {
+        f32 x, y, z;
+    };
 
-        struct Velocity {
-            f64 dx, dy;
-        };
+    struct Velocity {
+        f32 x, y, z;
+    };
 
-        struct Health {
-            u32 lifes;
-        };
+    struct Acceleration {
+        f32 x, y, z;
+    };
 
-    }
+    // Add more components here
 
-    using namespace components;
+
+    template<typename T>
+    struct ComponentTypeId {
+        static u32 value() {
+            static u32 id = counter++;
+            return id;
+        }
+    private:
+        static u32 counter;
+    };
+
+    template<typename T>
+    u32 ComponentTypeId<T>::counter = 0;
 }
 
 #endif
