@@ -15,21 +15,45 @@ namespace ecs {
         f32 x, y, z;
     };
 
-    // Add more components here
-
-
-    template<typename T>
-    struct ComponentTypeId {
-        static u32 value() {
-            static u32 id = counter++;
-            return id;
-        }
-    private:
-        static u32 counter;
+    struct Health {
+        u8 lifePoints;
     };
 
     template<typename T>
-    u32 ComponentTypeId<T>::counter = 0;
+    struct Column {
+        std::vector<T> elements;
+    };
+
+    Column<Position> positionColumn;
+    Column<Velocity> velocityColumn;
+    Column<Acceleration> accelerationColumn;
+    Column<Health> healthColumn;
+
+    std::vector<std::any> components = {
+        positionColumn,
+        velocityColumn,
+        accelerationColumn,
+        healthColumn
+    };
+
+    void printComponentType(u64 id) {
+        if (id >= components.size()) {
+            LOG_ERROR("Invalid component index\n");
+            return;
+        }
+        const std::any& comp = components[id];
+        if (comp.type() == typeid(Column<Position>)) {
+            LOG_INFO("Component id = ", id," -> Position component.\n");
+        } else if (comp.type() == typeid(Column<Velocity>)) {
+            LOG_INFO("Component id = ", id," -> Velocity component.\n");
+        } else if (comp.type() == typeid(Column<Acceleration>)) {
+            LOG_INFO("Component id = ", id," -> Acceleration component.\n");
+        } else if (comp.type() == typeid(Column<Health>)) {
+            LOG_INFO("Component id = ", id," -> Health component.\n");
+        } else {
+            LOG_ERROR("Unknown component type\n");
+        }
+    }
 }
 
 #endif

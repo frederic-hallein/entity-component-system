@@ -2,6 +2,7 @@
 #define WORLD_HPP
 
 #include "pch.hpp"
+// #include "archetypeManager.hpp"
 #include "components.hpp"
 
 namespace ecs {
@@ -11,7 +12,9 @@ namespace ecs {
 
     class World {
     public:
-        World() = default;
+        World() {
+            // mArchetypeManager = std::make_unique<ArchetypeManager>();
+        }
 
         void createEntity() {
             Entity e{mEntityId++};
@@ -37,9 +40,12 @@ namespace ecs {
             //      If True : change to this new archetype
             //      If False : create new archetype and assign address to entity
 
-            // You can get the component type ID with:
-            u32 componentId = ComponentTypeId<Component>::value();
-            LOG_INFO("Added component type ", componentId, " to entity ", entity.id);
+
+        }
+
+        template<typename... Components>
+        void addComponents(Entity entity, const Components&... components) {
+            (addComponent(entity, components), ...);
         }
 
         void deleteEntity(const Entity& entity) {
@@ -61,6 +67,8 @@ namespace ecs {
     private:
         u64 mEntityId = 0;
         std::vector<Entity> mEntities;
+
+        // std::unique_ptr<ArchetypeManager> mArchetypeManager;
     };
 }
 

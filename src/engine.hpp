@@ -2,9 +2,6 @@
 #define ENGINE_HPP
 
 #include "world.hpp"
-// #include "components.hpp"
-// #include "archetypeManager.hpp"
-// #include "componentManager.hpp"
 #include "timer.hpp"
 #include "window.hpp"
 
@@ -56,7 +53,11 @@ namespace ecs {
 
             Entity player = mWorld->getAllEntities()[0];
             Position playerPos{1.0f, 2.0f, 3.0f};
-            mWorld->addComponent(player, playerPos);
+            Acceleration playerAcc{0.0f, 0.0f, -1.0f};
+            mWorld->addComponents(player,
+                playerPos,
+                playerAcc
+            );
 
 
             LOG_INFO("Engine initialized");
@@ -89,8 +90,6 @@ namespace ecs {
         std::unique_ptr<Timer> mTimer;
 
         std::unique_ptr<World> mWorld;
-        // std::unique_ptr<ComponentManager> mComponentManager;
-        // std::unique_ptr<ArchetypeManager> mArchetypeManager;
     };
 }
 
