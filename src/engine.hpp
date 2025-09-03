@@ -7,7 +7,6 @@
 
 namespace ecs {
     class Engine {
-    static constexpr u64 MAX_ENTITIES = 10;
     public:
 
         // void loadEntities(const str& filename) {
@@ -49,15 +48,15 @@ namespace ecs {
 
             // Init ECS
             mWorld = std::make_unique<World>();
-            mWorld->createEntities(MAX_ENTITIES);
+            mWorld->createEntities();
 
-            Entity player = mWorld->getAllEntities()[0];
-            Position playerPos{1.0f, 2.0f, 3.0f};
-            Acceleration playerAcc{0.0f, 0.0f, -1.0f};
-            mWorld->addComponents(player,
-                playerPos,
-                playerAcc
-            );
+            // Entity player = mWorld->getAllEntities()[0];
+            // Position playerPos{1.0f, 2.0f, 3.0f};
+            // Acceleration playerAcc{0.0f, 0.0f, -1.0f};
+            // mWorld->addComponents(player,
+            //     playerPos,
+            //     playerAcc
+            // );
 
 
             LOG_INFO("Engine initialized");

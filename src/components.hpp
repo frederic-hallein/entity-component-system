@@ -54,6 +54,15 @@ namespace ecs {
             LOG_ERROR("Unknown component type\n");
         }
     }
+
+    // // TODO : use this for addComponent function
+    // inline void initComponentValues() {
+    //     auto& posCol = std::any_cast<Column<Position>&>(components[0]);
+    //     posCol.elements.push_back(Position{1.0f, 2.0f, 3.0f});
+
+    //     auto& velCol = std::any_cast<Column<Velocity>&>(components[1]);
+    //     velCol.elements.push_back(Velocity{0.1f, 0.2f, 0.3f});
+    // }
 }
 
 #endif
