@@ -4,6 +4,7 @@
 #include "pch.hpp"
 // #include "world.hpp"
 #include "entityManager.hpp"
+// #include "components.hpp"
 #include "components.hpp"
 
 using EntityId = u64;
@@ -17,7 +18,7 @@ using ArchetypeSet = std::unordered_set<ArchetypeId>;
 TypeHash computeTypeHash(const std::vector<u64>& type) {
     TypeHash h = 0;
     for (u64 x : type)
-        h ^= std::hash<u64>{}(x) + 0x9e3779b9 + (h << 6) + (h >> 2);
+        h ^= std::hash<u64>{}(x) + 0x9e3779b9 + (h << 6) + (h >> 2); // Magic Constant (0x9e3779b9) used in hash functions to help distribute values more evenly
     return h;
 }
 
@@ -30,7 +31,8 @@ namespace ecs {
     struct Archetype {
         ArchetypeId id;
         Type type;
-        std::vector<Column<std::any>> components;
+        // std::vector<Column<std::any>> components;
+        std::vector<std::any> components;
         std::unordered_map<ComponentId, ArchetypeEdge> edges;
     };
 

@@ -2,6 +2,10 @@
 #define COMPONENTS_HPP
 
 #include "pch.hpp"
+
+template<typename Component>
+using Column = std::vector<Component>;
+
 namespace ecs {
     struct Position {
         f32 x, y, z;
@@ -19,21 +23,30 @@ namespace ecs {
         u8 lifePoints;
     };
 
-    template<typename T>
-    struct Column {
-        std::vector<T> elements;
-    };
+    // template<typename T>
+    // struct Column {
+    //     std::vector<T> elements;
+    // };
 
-    Column<Position> positionColumn;
-    Column<Velocity> velocityColumn;
-    Column<Acceleration> accelerationColumn;
-    Column<Health> healthColumn;
+    // Column<Position> positionColumn;
+    // Column<Velocity> velocityColumn;
+    // Column<Acceleration> accelerationColumn;
+    // Column<Health> healthColumn;
+
+    // std::vector<std::any> components = {
+    //     positionColumn,
+    //     velocityColumn,
+    //     accelerationColumn,
+    //     healthColumn
+    // };
+
+
 
     std::vector<std::any> components = {
-        positionColumn,
-        velocityColumn,
-        accelerationColumn,
-        healthColumn
+        Column<Position>{},
+        Column<Velocity>{},
+        Column<Acceleration>{},
+        Column<Health>{}
     };
 
     void printComponentType(u64 id) {
