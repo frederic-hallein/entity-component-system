@@ -5,7 +5,7 @@
 
 namespace ecs {
     struct Entity {
-        u64 id;
+        u32 id;
     };
 
     class EntityManager {
@@ -18,7 +18,7 @@ namespace ecs {
         };
 
         void createEntities(usize amount) {
-            for (u64 i = 0; i < amount; ++i) {
+            for (u32 i = 0; i < amount; ++i) {
                 createEntity();
             }
         }
@@ -40,7 +40,7 @@ namespace ecs {
         }
 
     private:
-        u64 mEntityId = 0;
+        u32 mEntityId = 0;
         std::vector<Entity> mEntities;
     };
 }
