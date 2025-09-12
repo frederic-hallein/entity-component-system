@@ -45,17 +45,62 @@ TEST(WorldTest, DeleteEntity) {
     }
 }
 
-TEST(WorldTest, GetComponent) {
+TEST(WorldTest, GetOrCreateRecord) {
     /* -- arrange -- */
     World world;
-    EntityId entityId = 0;
-    ComponentId componentId = 0;
-    // TODO : add component to entity
+    EntityId entityId = 42;
 
     /* -- act -- */
-    std::any component = world.getComponent(entityId, componentId);
+    Record* firstRecord  = world.getArchetypeManager()->getOrCreateRecord(entityId);
+    Record* secondRecord = world.getArchetypeManager()->getOrCreateRecord(entityId);
 
     /* -- assert -- */
-    EXPECT_TRUE(component.has_value());
-    // TODO : expect component and try casting
+    ASSERT_NE(firstRecord, nullptr);
+    ASSERT_NE(firstRecord->archetype, nullptr);
+    ASSERT_EQ(firstRecord, secondRecord);
+    EXPECT_EQ(firstRecord->archetype, secondRecord->archetype);
 }
+
+TEST(WorldTest, GetOrCreateArchetypeMap) {
+    /* -- arrange -- */
+    World world;
+    ComponentId componentId = 7;
+
+    /* -- act -- */
+    ArchetypeMap& firstMap  = world.getArchetypeManager()->getOrCreateArchetypeMap(componentId);
+    ArchetypeMap& secondMap = world.getArchetypeManager()->getOrCreateArchetypeMap(componentId);
+
+    /* -- assert -- */
+    ASSERT_EQ(&firstMap, &secondMap);
+    EXPECT_TRUE(firstMap.empty());
+    ArchetypeId archetypeId = 3;
+    ArchetypeRecord record;
+    firstMap[archetypeId] = record;
+    EXPECT_EQ(secondMap.count(archetypeId), 1);
+}
+
+TEST(WorldTest, GetOrCreateArchetypeRecord) {
+    /* -- arrange -- */
+    World world;
+    ComponentId componentId = 7;
+    ArchetypeId archetypeId = 3;
+    ArchetypeMap& archetypeMap = world.getArchetypeManager()->getOrCreateArchetypeMap(componentId);
+
+    /* -- act -- */
+    ArchetypeRecord& firstRecord  = world.getArchetypeManager()->getOrCreateArchetypeRecord(archetypeMap, archetypeId);
+    ArchetypeRecord& secondRecord = world.getArchetypeManager()->getOrCreateArchetypeRecord(archetypeMap, archetypeId);
+
+    /* -- assert -- */
+    ASSERT_EQ(&firstRecord, &secondRecord);
+}
+
+
+// TEST(WorldTest, AddComponent) {
+//     /* -- arrange -- */
+//     World world;
+//     EntityId entityId = 1;
+//     ComponentId componentId = 2;
+//     /* -- act -- */
+//     /* -- assert -- */
+// }
+

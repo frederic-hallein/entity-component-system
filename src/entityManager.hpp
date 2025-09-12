@@ -35,6 +35,11 @@ namespace ecs {
             LOG_INFO("Deleted entity ID = ", entity.id);
         }
 
+        // bool isValid(const Entity& entity) const {
+        //     return std::any_of(mEntities.begin(), mEntities.end(),
+        //         [&entity](const Entity& e) { return e.id == entity.id; });
+        // }
+
         const std::vector<Entity>& getAllEntities() const {
             return mEntities;
         }
