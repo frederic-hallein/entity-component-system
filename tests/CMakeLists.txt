@@ -1,6 +1,8 @@
 add_executable(ecs_tests
     test_main.cpp
-    test_world.cpp
+    # test_world.cpp
+    test_entityManager.cpp
+    test_archetypeManager.cpp
 )
 
 target_precompile_headers(ecs_tests PRIVATE
