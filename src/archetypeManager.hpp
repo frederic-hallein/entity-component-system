@@ -38,7 +38,7 @@ namespace ecs {
 
     class ArchetypeManager {
     public:
-        ArchetypeManager() {
+        ArchetypeManager() : nextId(0) {
             initEmptyArchetype();
             LOG_INFO("ArchetypeManager initialized.");
         }
@@ -46,7 +46,6 @@ namespace ecs {
         ~ArchetypeManager() = default;
 
         Archetype* createArchetype() {
-            static ArchetypeId nextId = 0;
             Archetype archetype;
             archetype.id = nextId++;
             mArchetypes.push_back(archetype);
@@ -59,12 +58,18 @@ namespace ecs {
             if (entityIt != entityIndex.end()) {
                 return entityIt->second;
             } else {
-                Archetype* newArchetype = createArchetype();
+                // Get the empty archetype
+                TypeHash emptyHash = computeTypeHash();
+                Archetype* emptyArchetype = nullptr;
+                auto it = archetypeIndex.find(emptyHash);
+                if (it != archetypeIndex.end()) {
+                    emptyArchetype = it->second;
+                }
+
                 Record newRecord;
-                newRecord.archetype = newArchetype;
-                newRecord.row++;
-                auto [it, inserted] = entityIndex.insert({entityId, newRecord});
-                return it->second;
+                newRecord.archetype = emptyArchetype;
+                auto [insertedIt, inserted] = entityIndex.insert({entityId, newRecord});
+                return insertedIt->second;
             }
         }
 
@@ -99,7 +104,37 @@ namespace ecs {
 
             // sort type
             std::vector<u32>& type = archetype->type;
+            if (std::find(type.begin(), type.end(), componentId) != type.end()) {
+                LOG_INFO("Archetype already contains component id = ", componentId, ". Ignore.");
+                return;
+            }
+
             type.push_back(componentId);
+            std::sort(type.begin(), type.end());
+
+            // match columns with sorted type
+            archetype->columns.clear();
+            for (ComponentId cid : type) {
+                archetype->columns.push_back(ecs::components[cid]);
+            }
+        }
+
+        void updateArchetypeTypeAndColumns(Archetype* archetype, const std::vector<ComponentId>& componentIds) {
+            if (!archetype) {
+                LOG_WARN("Archetype pointer is null.");
+                return;
+            }
+
+            // sort type
+            std::vector<u32>& type = archetype->type;
+            for (ComponentId cid : componentIds) {
+                if (std::find(type.begin(), type.end(), cid) != type.end()) {
+                    LOG_INFO("Archetype already contains component id = ", cid, ". Ignore.");
+                    continue;
+                }
+
+                type.push_back(cid);
+            }
             std::sort(type.begin(), type.end());
 
             // match columns with sorted type
@@ -213,11 +248,12 @@ namespace ecs {
         }
 
     private:
+        ArchetypeId nextId;
         std::vector<Archetype> mArchetypes;
+        std::unordered_map<TypeHash, Archetype*> archetypeIndex;
 
         std::unordered_map<EntityId, Record> entityIndex;
         std::unordered_map<ComponentId, ArchetypeMap> componentIndex;
-        std::unordered_map<TypeHash, Archetype*> archetypeIndex;
     };
 }
 
