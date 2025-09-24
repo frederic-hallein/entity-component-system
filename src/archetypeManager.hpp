@@ -5,13 +5,12 @@
 #include "entityManager.hpp"
 #include "components.hpp"
 
-using EntityId = u32;
-using ComponentId = u32;
-using ArchetypeId = u32;
-using TypeHash = u32;
-using Type = std::vector<ComponentId>;
-
 namespace ecs {
+    using EntityId = u32;
+    using ArchetypeId = u32;
+    using TypeHash = u32;
+    using Type = std::vector<ComponentId>;
+
     struct Archetype;
     struct ArchetypeEdge {
         Archetype* add = nullptr;
@@ -20,7 +19,7 @@ namespace ecs {
     struct Archetype {
         ArchetypeId id = static_cast<ArchetypeId>(-1);
         Type type = {};
-        std::vector<std::any> columns = {};
+        std::vector<void*> columns = {};
         std::unordered_map<ComponentId, ArchetypeEdge> edges = {};
     };
 
@@ -38,7 +37,7 @@ namespace ecs {
 
     class ArchetypeManager {
     public:
-        ArchetypeManager() : nextId(0) {
+        ArchetypeManager() : mNextId(0) {
             initEmptyArchetype();
             LOG_INFO("ArchetypeManager initialized.");
         }
@@ -47,76 +46,95 @@ namespace ecs {
 
         Archetype* createArchetype() {
             Archetype archetype;
-            archetype.id = nextId++;
+            archetype.id = mNextId++;
             mArchetypes.push_back(archetype);
+            LOG_INFO("Created Archetype with ID = ", archetype.id, ".");
             return &mArchetypes.back();
         }
 
-        Record& getOrCreateRecord(EntityId entityId) {
-            auto& entityIndex = getEntityIndex();
-            auto entityIt = entityIndex.find(entityId);
-            if (entityIt != entityIndex.end()) {
-                return entityIt->second;
-            } else {
-                // Get the empty archetype
-                TypeHash emptyHash = computeTypeHash();
-                Archetype* emptyArchetype = nullptr;
-                auto it = archetypeIndex.find(emptyHash);
-                if (it != archetypeIndex.end()) {
-                    emptyArchetype = it->second;
+        Record* getRecord(EntityId entityId) {
+            auto entityIt = mEntityIndex.find(entityId);
+            if (entityIt != mEntityIndex.end()) {
+                LOG_INFO("Found Record for Entity ID = ", entityId, ".");
+                return &entityIt->second;
+            }
+
+            LOG_INFO("Did not find Record for Entity ID = ", entityId, ".");
+            return nullptr;
+        }
+
+        Record& createRecord(EntityId entityId) {
+            if (Record* record = getRecord(entityId)) {
+                return *record;
+            }
+
+            LOG_INFO("Create new Record for Entity ID = ", entityId," and set it to the Empty Archetype.");
+
+            TypeHash emptyHash = computeTypeHash();
+            Archetype* emptyArchetype = nullptr;
+            auto archIt = mArchetypeIndex.find(emptyHash);
+            if (archIt != mArchetypeIndex.end()) {
+                emptyArchetype = archIt->second;
+            }
+
+            Record newRecord;
+            newRecord.archetype = emptyArchetype;
+            usize row = 0;
+            for (const auto& [_, rec] : mEntityIndex) {
+                if (rec.archetype == emptyArchetype) {
+                    ++row;
                 }
-
-                Record newRecord;
-                newRecord.archetype = emptyArchetype;
-                auto [insertedIt, inserted] = entityIndex.insert({entityId, newRecord});
-                return insertedIt->second;
             }
+            newRecord.row = row;
+
+            auto [it, _] = mEntityIndex.insert({entityId, newRecord});
+            return it->second;
         }
 
-        ArchetypeMap& getOrCreateArchetypeMap(ComponentId componentId) {
-            auto& componentIndex = getComponentIndex();
-            auto componentIt = componentIndex.find(componentId);
-            if (componentIt != componentIndex.end()) {
-                return componentIt->second;
-            } else {
-                ArchetypeMap newArchetypeMap;
-                auto [it, inserted] = componentIndex.insert({componentId, newArchetypeMap});
-                return it->second;
+        ArchetypeMap* getArchetypeMap(ComponentId componentId) {
+            auto componentIt = mComponentIndex.find(componentId);
+            if (componentIt != mComponentIndex.end()) {
+                LOG_INFO("Found ArchetypeMap for Component ID = ", static_cast<u32>(componentId), ".");
+                return &componentIt->second;
             }
+
+            LOG_INFO("Did not find ArchetypeMap for Component ID = ", static_cast<u32>(componentId), ".");
+            return nullptr;
         }
 
-        ArchetypeRecord& getOrCreateArchetypeRecord(ArchetypeMap& archetypeMap, ArchetypeId archetypeId) {
-            auto archetypeIt = archetypeMap.find(archetypeId);
-            if (archetypeIt != archetypeMap.end()) {
-                return archetypeIt->second;
-            } else {
-                ArchetypeRecord newArchetypeRecord;
-                auto [it, inserted] = archetypeMap.insert({archetypeId, newArchetypeRecord});
-                return it->second;
+        ArchetypeMap& createArchetypeMap(ComponentId componentId) {
+            if (ArchetypeMap* archetypeMap = getArchetypeMap(componentId)) {
+                return *archetypeMap;
             }
+
+            LOG_INFO("Create new ArchetypeMap for Component ID = ", static_cast<u32>(componentId),".");
+
+            ArchetypeMap newArchetypeMap;
+            auto [it, _] = mComponentIndex.insert({componentId, newArchetypeMap});
+            return it->second;
         }
 
-        void updateArchetypeTypeAndColumns(Archetype* archetype, ComponentId componentId) {
-            if (!archetype) {
-                LOG_WARN("Archetype pointer is null.");
-                return;
+        ArchetypeRecord* getArchetypeRecord(ArchetypeMap& archetypeMap, ArchetypeId archetypeId) {
+            auto archetypeMapIt = archetypeMap.find(archetypeId);
+            if (archetypeMapIt != archetypeMap.end()) {
+                LOG_INFO("Found ArchetypeRecord for Archetype ID = ", archetypeId, ".");
+                return &archetypeMapIt->second;
             }
 
-            // sort type
-            std::vector<u32>& type = archetype->type;
-            if (std::find(type.begin(), type.end(), componentId) != type.end()) {
-                LOG_INFO("Archetype already contains component id = ", componentId, ". Ignore.");
-                return;
+            LOG_INFO("Did not find ArchetypeRecord for ArchetypeId ID = ", archetypeId, ".");
+            return nullptr;
+        }
+
+        ArchetypeRecord& createArchetypeRecord(ArchetypeMap& archetypeMap, ArchetypeId archetypeId) {
+            if (ArchetypeRecord* archetypeRecord = getArchetypeRecord(archetypeMap, archetypeId)) {
+                return *archetypeRecord;
             }
 
-            type.push_back(componentId);
-            std::sort(type.begin(), type.end());
+            LOG_INFO("Create new ArchetypeRecord for Archetype ID = ", archetypeId, ".");
 
-            // match columns with sorted type
-            archetype->columns.clear();
-            for (ComponentId cid : type) {
-                archetype->columns.push_back(ecs::components[cid]);
-            }
+            ArchetypeRecord newArchetypeRecord;
+            auto [it, _] = archetypeMap.insert({archetypeId, newArchetypeRecord});
+            return it->second;
         }
 
         void updateArchetypeTypeAndColumns(Archetype* archetype, const std::vector<ComponentId>& componentIds) {
@@ -125,22 +143,27 @@ namespace ecs {
                 return;
             }
 
+            if (componentIds.empty()) {
+                LOG_INFO("No components to add to archetype.");
+                return;
+            }
+
             // sort type
-            std::vector<u32>& type = archetype->type;
-            for (ComponentId cid : componentIds) {
-                if (std::find(type.begin(), type.end(), cid) != type.end()) {
-                    LOG_INFO("Archetype already contains component id = ", cid, ". Ignore.");
+            std::vector<ComponentId>& type = archetype->type;
+            for (ComponentId componentId : componentIds) {
+                if (std::find(type.begin(), type.end(), componentId) != type.end()) {
+                    LOG_INFO("Archetype already contains Component ID = ", static_cast<u32>(componentId), ". Skip.");
                     continue;
                 }
 
-                type.push_back(cid);
+                type.push_back(componentId);
             }
             std::sort(type.begin(), type.end());
 
-            // match columns with sorted type
+            LOG_INFO("Match Archetype Columns with sorted Type.");
             archetype->columns.clear();
-            for (ComponentId cid : type) {
-                archetype->columns.push_back(ecs::components[cid]);
+            for (ComponentId componentId : type) {
+                archetype->columns.push_back(components[static_cast<u32>(componentId)]);
             }
         }
 
@@ -150,6 +173,8 @@ namespace ecs {
                 return;
             }
 
+            archetype->edges.clear();
+
             auto& type = archetype->type;
             if (type.size() == 0) {
                 LOG_INFO("Archetype has 0 components. Ignore.");
@@ -157,25 +182,26 @@ namespace ecs {
             }
 
             if (type.size() == 1) {
-                LOG_INFO("Archetype has 1 component.\nSet 'remove' edge of current archetype to empty archetype and \nset 'add' edge of empty archetype to current archetype.");
+                LOG_INFO("Archetype has 1 component. Set 'add' Edge of empty Archetype to current Archetype and 'remove' Edge of current Archetype to empty Archetype.");
 
                 ComponentId componentId = archetype->type[0];
                 TypeHash emptyHash = computeTypeHash();
-                Archetype* emptyArchetype = archetypeIndex[emptyHash];
+                Archetype* emptyArchetype = mArchetypeIndex.at(emptyHash);
 
                 ArchetypeEdge currentArchetypeEdge;
                 currentArchetypeEdge.remove = emptyArchetype;
                 auto& currentArchetypeEdges = archetype->edges;
-                currentArchetypeEdges[componentId] = currentArchetypeEdge;
+                currentArchetypeEdges.insert({componentId, currentArchetypeEdge});
 
                 ArchetypeEdge emptyArchetypeEdge;
                 emptyArchetypeEdge.add = archetype;
                 auto& emptyArchetypeEdges = emptyArchetype->edges;
-                emptyArchetypeEdges[componentId] = emptyArchetypeEdge;
+                emptyArchetypeEdges.insert({componentId, emptyArchetypeEdge});
 
                 return;
             }
 
+            LOG_INFO("Archetype has > 1 components. Set 'add' Edge of subset Archetype to current Archetype and 'remove' Edge of current Archetype to subset Archetype.");
             for (const auto& currentId : type) {
                 Type subset;
                 subset.reserve(type.size() - 1);
@@ -186,36 +212,36 @@ namespace ecs {
                 );
 
                 TypeHash subsetHash = computeTypeHash(subset);
-                auto subsetIt = archetypeIndex.find(subsetHash);
-                if (subsetIt == archetypeIndex.end()) {
-                    LOG_INFO("Subset archetype not found. Ignore.");
+                auto subsetIt = mArchetypeIndex.find(subsetHash);
+                if (subsetIt == mArchetypeIndex.end()) {
+                    LOG_INFO("Subset Archetype not found. Ignore.");
                     continue;
                 }
 
                 Archetype* subsetArchetype = subsetIt->second;
                 if (!subsetArchetype) {
-                    LOG_WARN("Subset archetype pointer is null.");
+                    LOG_WARN("Subset Archetype pointer is null.");
                     return;
                 }
 
                 ArchetypeEdge currentArchetypeEdge;
                 currentArchetypeEdge.remove = subsetArchetype;
                 auto& currentArchetypeEdges = archetype->edges;
-                currentArchetypeEdges[currentId] = currentArchetypeEdge;
+                currentArchetypeEdges.insert({currentId, currentArchetypeEdge});
 
                 ArchetypeEdge subsetEdge;
                 subsetEdge.add = archetype;
                 auto& subsetEdges = subsetArchetype->edges;
-                subsetEdges[currentId] = subsetEdge;
+                subsetEdges.insert({currentId, subsetEdge});
             }
         }
 
         // Computes hash for Type so it can be used as key for archetypeIndex (defaults to empty hash)
         // Magic Constant (0x9e3779b9) used in hash functions to help distribute values more evenly
-        TypeHash computeTypeHash(const std::vector<u32>& type = {}) {
+        TypeHash computeTypeHash(const std::vector<ComponentId>& type = {}) {
             TypeHash h = 0;
-            for (u32 x : type)
-                h ^= std::hash<u32>{}(x) + 0x9e3779b9 + (h << 6) + (h >> 2);
+            for (ComponentId componentId : type)
+                h ^= std::hash<u32>{}(static_cast<u32>(componentId)) + 0x9e3779b9 + (h << 6) + (h >> 2);
             return h;
         }
 
@@ -226,19 +252,19 @@ namespace ecs {
             }
 
             TypeHash typeHash = computeTypeHash(archetype->type);
-            archetypeIndex.insert({typeHash, archetype});
+            mArchetypeIndex.insert({typeHash, archetype});
         }
 
         std::unordered_map<EntityId, Record>& getEntityIndex() {
-            return entityIndex;
+            return mEntityIndex;
         }
 
         std::unordered_map<ComponentId, ArchetypeMap>& getComponentIndex() {
-            return componentIndex;
+            return mComponentIndex;
         }
 
         std::unordered_map<TypeHash, Archetype*>& getArchetypeIndex() {
-            return archetypeIndex;
+            return mArchetypeIndex;
         }
 
     private:
@@ -248,12 +274,12 @@ namespace ecs {
         }
 
     private:
-        ArchetypeId nextId;
+        ArchetypeId mNextId;
         std::vector<Archetype> mArchetypes;
-        std::unordered_map<TypeHash, Archetype*> archetypeIndex;
 
-        std::unordered_map<EntityId, Record> entityIndex;
-        std::unordered_map<ComponentId, ArchetypeMap> componentIndex;
+        std::unordered_map<TypeHash, Archetype*> mArchetypeIndex;
+        std::unordered_map<EntityId, Record> mEntityIndex;
+        std::unordered_map<ComponentId, ArchetypeMap> mComponentIndex;
     };
 }
 

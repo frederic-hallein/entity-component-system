@@ -20,6 +20,24 @@ namespace ecs {
         u8 lifePoints;
     };
 
+    // Explicit enum for component IDs
+    enum class ComponentId : u32 {
+        Position = 0,
+        Velocity,
+        Acceleration,
+        Health,
+        Count
+    };
+
+    // Traits to map type to ComponentId
+    template<typename T>
+    struct ComponentIdTrait;
+
+    template<> struct ComponentIdTrait<Position>     { static constexpr ComponentId id = ComponentId::Position; };
+    template<> struct ComponentIdTrait<Velocity>     { static constexpr ComponentId id = ComponentId::Velocity; };
+    template<> struct ComponentIdTrait<Acceleration> { static constexpr ComponentId id = ComponentId::Acceleration; };
+    template<> struct ComponentIdTrait<Health>       { static constexpr ComponentId id = ComponentId::Health; };
+
     template<typename T>
     struct Column {
         std::vector<T> elements;
@@ -30,21 +48,13 @@ namespace ecs {
     inline Column<Acceleration> accelerationColumn;
     inline Column<Health> healthColumn;
 
-    inline std::vector<std::any> components = {
-        positionColumn,
-        velocityColumn,
-        accelerationColumn,
-        healthColumn
+    // Use the enum for array size and order
+    inline std::array<void*, static_cast<usize>(ComponentId::Count)> components = {
+        &positionColumn,
+        &velocityColumn,
+        &accelerationColumn,
+        &healthColumn
     };
-
-    // // TODO : use this for addComponent function
-    // inline void initComponentValues() {
-    //     auto& posCol = std::any_cast<Column<Position>&>(components[0]);
-    //     posCol.elements.push_back(Position{1.0f, 2.0f, 3.0f});
-
-    //     auto& velCol = std::any_cast<Column<Velocity>&>(components[1]);
-    //     velCol.elements.push_back(Velocity{0.1f, 0.2f, 0.3f});
-    // }
 }
 
 #endif
