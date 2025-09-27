@@ -5,8 +5,6 @@
 #include "entityManager.hpp"
 #include "archetypeManager.hpp"
 
-static constexpr u32 MAX_ENTITIES = 10;
-
 namespace ecs {
     class World {
     public:
@@ -19,18 +17,24 @@ namespace ecs {
         template<typename T>
         T* getComponent(EntityId entityId) {
             Record* record = mArchetypeManager->getRecord(entityId);
-            if (!record || !record->archetype) {
+            if (!record) {
+                LOG_WARN("Record pointer in getComponent is null.");
                 return nullptr;
             }
 
             Archetype* archetype = record->archetype;
-            auto componentIt = std::find(archetype->type.begin(), archetype->type.end(), ComponentIdTrait<T>::id);
-            if (componentIt == archetype->type.end()) {
-                // LOG_INFO("Component ID = ", static_cast<u32>(componentIt)," not present in this archetype.");
+            if (!archetype) {
+                LOG_WARN("Archetype pointer in getComponent is null.");
                 return nullptr;
             }
-            usize colIdx = std::distance(archetype->type.begin(), componentIt);
 
+            auto componentIt = std::find(archetype->type.begin(), archetype->type.end(), ComponentIdTrait<T>::id);
+            if (componentIt == archetype->type.end()) {
+                LOG_INFO("Component ID = ", static_cast<u32>(ComponentIdTrait<T>::id)," not present in this Archetype.");
+                return nullptr;
+            }
+
+            usize colIdx = std::distance(archetype->type.begin(), componentIt);
             auto* col = static_cast<Column<T>*>(archetype->columns[colIdx]);
             if (record->row >= col->elements.size()) {
                 return nullptr;
@@ -39,19 +43,67 @@ namespace ecs {
         }
 
         void moveEntity(Archetype* sourceArchetype, Archetype* destinationArchetype, usize row) {
-            if (!sourceArchetype) {
-                LOG_WARN("Source archetype pointer is null.");
+            if (!sourceArchetype || !destinationArchetype) {
+                LOG_WARN("Source Archetype pointer in moveEntity is null.");
                 return;
             }
 
             if (!destinationArchetype) {
-                LOG_WARN("Destination archetype pointer is null.");
+                LOG_WARN("Destination Archetype pointer in moveEntity is null.");
                 return;
             }
 
-            // TODO: Insert a new row into the destination archetype
-            // TODO: Move overlapping components over to the destination archetype
-            // TODO: Remove the entity from the current archetype
+            // Insert a new row into the destination archetype
+            for (usize i = 0; i < destinationArchetype->type.size(); ++i) {
+                ComponentId cid = destinationArchetype->type[i];
+                auto srcIt = std::find(sourceArchetype->type.begin(), sourceArchetype->type.end(), cid);
+                if (srcIt != sourceArchetype->type.end()) {
+                    usize srcIdx = std::distance(sourceArchetype->type.begin(), srcIt);
+                    destinationArchetype->columns[i]->moveElementFrom(sourceArchetype->columns[srcIdx], row);
+                } else {
+                    destinationArchetype->columns[i]->moveElementFrom(nullptr, 0);
+                }
+            }
+
+            // Find the entity being moved (by matching archetype and row)
+            EntityId movedEntity = 0;
+            for (const auto& [entityId, record] : mArchetypeManager->getEntityIndex()) {
+                if (record.archetype == sourceArchetype && record.row == row) {
+                    movedEntity = entityId;
+                    break;
+                }
+            }
+
+            // Remove the entity from the source archetype
+            usize lastRow = 0;
+            if (!sourceArchetype->columns.empty()) {
+                lastRow = sourceArchetype->columns[0]->size() - 1;
+            }
+
+            for (auto* col : sourceArchetype->columns) {
+                col->removeElement(row);
+            }
+
+            // Update the moved entity's record to point to the new archetype and row
+            if (movedEntity != 0) {
+                auto& record = mArchetypeManager->getEntityIndex()[movedEntity];
+                record.archetype = destinationArchetype;
+                if (!destinationArchetype->columns.empty()) {
+                    record.row = destinationArchetype->columns[0]->size() - 1; // last row
+                } else {
+                    record.row = 0;
+                }
+            }
+
+            // If swap-and-pop was used, update the record of the entity that was swapped in the source archetype
+            if (row < lastRow) {
+                for (auto& [entityId, record] : mArchetypeManager->getEntityIndex()) {
+                    if (record.archetype == sourceArchetype && record.row == lastRow) {
+                        record.row = row;
+                        break;
+                    }
+                }
+            }
         }
 
         void addComponent(EntityId entityId, ComponentId componentId) {
@@ -83,13 +135,7 @@ namespace ecs {
 
                 mArchetypeManager->updateArchetypeTypeAndColumns(destinationArchetype, newType);
                 mArchetypeManager->updateArchetypeIndex(destinationArchetype);
-
                 mArchetypeManager->setupArchetypeEdges(destinationArchetype);
-
-                // TODO : check if correct
-                ArchetypeEdge edge;
-                edge.add = destinationArchetype;
-                sourceArchetype->edges.insert({componentId, edge});
             }
 
             moveEntity(sourceArchetype, destinationArchetype, recordRow);
@@ -105,7 +151,7 @@ namespace ecs {
                 return;
             }
 
-            mArchetypeManager->setupArchetypeEdges(sourceArchetype);
+            LOG_INFO("Archetype type size: ", sourceArchetype->type.size());
 
             Archetype* destinationArchetype = nullptr;
             auto edgeIt = sourceArchetype->edges.find(componentId);
@@ -126,13 +172,7 @@ namespace ecs {
 
                 mArchetypeManager->updateArchetypeTypeAndColumns(destinationArchetype, newType);
                 mArchetypeManager->updateArchetypeIndex(destinationArchetype);
-
                 mArchetypeManager->setupArchetypeEdges(destinationArchetype);
-
-                // TODO : check if correct
-                ArchetypeEdge edge;
-                edge.remove = destinationArchetype;
-                sourceArchetype->edges.insert({componentId, edge});
             }
 
             moveEntity(sourceArchetype, destinationArchetype, recordRow);

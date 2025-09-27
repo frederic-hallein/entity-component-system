@@ -19,7 +19,7 @@ namespace ecs {
     struct Archetype {
         ArchetypeId id = static_cast<ArchetypeId>(-1);
         Type type = {};
-        std::vector<void*> columns = {};
+        std::vector<ColumnBase*> columns;
         std::unordered_map<ComponentId, ArchetypeEdge> edges = {};
     };
 
@@ -45,11 +45,16 @@ namespace ecs {
         ~ArchetypeManager() = default;
 
         Archetype* createArchetype() {
-            Archetype archetype;
-            archetype.id = mNextId++;
-            mArchetypes.push_back(archetype);
-            LOG_INFO("Created Archetype with ID = ", archetype.id, ".");
-            return &mArchetypes.back();
+            auto archetype = std::make_unique<Archetype>();
+            archetype->id = mNextId++;
+            Archetype* archetypePtr = archetype.get();
+            mArchetypes.push_back(std::move(archetype));
+            if (archetypePtr->id == 0) {
+                LOG_INFO("Created Archetype with ID = ", archetypePtr->id, " (a.k.a., the Empty Archetype).");
+            } else {
+                LOG_INFO("Created Archetype with ID = ", archetypePtr->id, ".");
+            }
+            return archetypePtr;
         }
 
         Record* getRecord(EntityId entityId) {
@@ -143,26 +148,34 @@ namespace ecs {
                 return;
             }
 
-            if (componentIds.empty()) {
-                LOG_INFO("No components to add to archetype.");
-                return;
+            // // sort type
+            // std::vector<ComponentId>& type = archetype->type;
+            // for (ComponentId componentId : componentIds) {
+            //     if (std::find(type.begin(), type.end(), componentId) != type.end()) {
+            //         LOG_INFO("Archetype already contains Component ID = ", static_cast<u32>(componentId), ". Skip.");
+            //         continue;
+            //     }
+
+            //     type.push_back(componentId);
+            // }
+            // std::sort(type.begin(), type.end());
+
+            // Assign and sort type
+            archetype->type = componentIds;
+            std::sort(archetype->type.begin(), archetype->type.end());
+            archetype->type.erase(std::unique(archetype->type.begin(), archetype->type.end()), archetype->type.end());
+
+
+            std::ostringstream oss;
+            oss << "[";
+            for (size_t i = 0; i < archetype->type.size(); ++i) {
+                oss << static_cast<u32>(archetype->type[i]);
+                if (i + 1 < archetype->type.size()) oss << ", ";
             }
-
-            // sort type
-            std::vector<ComponentId>& type = archetype->type;
-            for (ComponentId componentId : componentIds) {
-                if (std::find(type.begin(), type.end(), componentId) != type.end()) {
-                    LOG_INFO("Archetype already contains Component ID = ", static_cast<u32>(componentId), ". Skip.");
-                    continue;
-                }
-
-                type.push_back(componentId);
-            }
-            std::sort(type.begin(), type.end());
-
-            LOG_INFO("Match Archetype Columns with sorted Type.");
+            oss << "]";
+            LOG_INFO("Match Archetype Columns with sorted Type: ", oss.str());
             archetype->columns.clear();
-            for (ComponentId componentId : type) {
+            for (ComponentId componentId : archetype->type) {
                 archetype->columns.push_back(components[static_cast<u32>(componentId)]);
             }
         }
@@ -182,7 +195,7 @@ namespace ecs {
             }
 
             if (type.size() == 1) {
-                LOG_INFO("Archetype has 1 component. Set 'add' Edge of empty Archetype to current Archetype and 'remove' Edge of current Archetype to empty Archetype.");
+                LOG_INFO("Archetype has 1 component with ID = ", static_cast<u32>(type[0]), ". \nSet 'add' Edge of empty Archetype to current Archetype and 'remove' Edge of current Archetype to empty Archetype.");
 
                 ComponentId componentId = archetype->type[0];
                 TypeHash emptyHash = computeTypeHash();
@@ -201,7 +214,14 @@ namespace ecs {
                 return;
             }
 
-            LOG_INFO("Archetype has > 1 components. Set 'add' Edge of subset Archetype to current Archetype and 'remove' Edge of current Archetype to subset Archetype.");
+            std::ostringstream oss;
+            oss << "[";
+            for (size_t i = 0; i < type.size(); ++i) {
+                oss << static_cast<u32>(type[i]);
+                if (i + 1 < type.size()) oss << ", ";
+            }
+            oss << "]";
+            LOG_INFO("Archetype has > 1 component with IDs = ", oss.str());
             for (const auto& currentId : type) {
                 Type subset;
                 subset.reserve(type.size() - 1);
@@ -209,6 +229,30 @@ namespace ecs {
                     type.begin(), type.end(),
                     std::back_inserter(subset),
                     [currentId](ComponentId id) { return id != currentId; }
+                );
+
+                // Build string for current archetype IDs
+                std::ostringstream currentOss;
+                currentOss << "[";
+                for (size_t i = 0; i < type.size(); ++i) {
+                    currentOss << static_cast<u32>(type[i]);
+                    if (i + 1 < type.size()) currentOss << ", ";
+                }
+                currentOss << "]";
+
+                // Build string for subset archetype IDs
+                std::ostringstream subsetOss;
+                subsetOss << "[";
+                for (size_t i = 0; i < subset.size(); ++i) {
+                    subsetOss << static_cast<u32>(subset[i]);
+                    if (i + 1 < subset.size()) subsetOss << ", ";
+                }
+                subsetOss << "]";
+
+                LOG_INFO(
+                    "Set 'add' Edge of subset Archetype (IDs = ", subsetOss.str(),
+                    ") to current Archetype (IDs = ", currentOss.str(),
+                    ") and 'remove' Edge of current Archetype to subset Archetype."
                 );
 
                 TypeHash subsetHash = computeTypeHash(subset);
@@ -275,7 +319,7 @@ namespace ecs {
 
     private:
         ArchetypeId mNextId;
-        std::vector<Archetype> mArchetypes;
+        std::vector<std::unique_ptr<Archetype>> mArchetypes;
 
         std::unordered_map<TypeHash, Archetype*> mArchetypeIndex;
         std::unordered_map<EntityId, Record> mEntityIndex;

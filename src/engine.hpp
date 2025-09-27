@@ -8,56 +8,12 @@
 namespace ecs {
     class Engine {
     public:
-
-        // void loadEntities(const str& filename) {
-        //     if (!std::ifstream(filename)) {
-        //         LOG_ERROR("Could not open entity file: ", filename);
-        //         return;
-        //     }
-
-        //     YAML::Node entities = YAML::LoadFile(filename);
-        //     for (const auto& entityNode : entities) {
-        //         u64 id = entityNode["id"].as<u64>();
-        //         auto components = entityNode["components"];
-        //         if (!components) {
-        //             LOG_DEBUG("ID = ", id, " does not have components.");
-        //             return;
-        //         }
-
-        //         // if (components["Position"]) {
-        //         //     auto pos = components["Position"];
-        //         //     mComponentManager->setComponent(id, Position{pos["x"].as<f32>(), pos["y"].as<f32>()});
-        //         // }
-        //         // if (components["Velocity"]) {
-        //         //     auto vel = components["Velocity"];
-        //         //     mComponentManager->setComponent(id, Velocity{vel["x"].as<f32>(), vel["y"].as<f32>()});
-        //         // }
-
-        //     }
-        // }
-
         Engine(cstr title, u16 width, u16 height) {
             printInfo();
 
             // Create window and timer
             mWindow = std::make_unique<Window>(title, width, height);
             mTimer = std::make_unique<Timer>();
-
-            // // Setup entities
-            // loadEntities("../data/entities.yaml");
-
-            // Init ECS
-            mWorld = std::make_unique<World>();
-            mWorld->createEntities();
-
-            // Entity player = mWorld->getAllEntities()[0];
-            // Position playerPos{1.0f, 2.0f, 3.0f};
-            // Acceleration playerAcc{0.0f, 0.0f, -1.0f};
-            // mWorld->addComponents(player,
-            //     playerPos,
-            //     playerAcc
-            // );
-
 
             LOG_INFO("Engine initialized");
         }

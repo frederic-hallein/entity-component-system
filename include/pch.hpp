@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <array>
 #include <memory>
 #include <chrono>
 #include <iomanip>
@@ -19,12 +20,6 @@
 #include <thread>
 #include <functional>
 #include <deque>
-
-// C standard library
-#include <cstdint>
-#include <cstddef>
-#include <cstring>
-#include <cstdio>
 
 // project headers
 #include "common.hpp"
