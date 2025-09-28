@@ -148,18 +148,6 @@ namespace ecs {
                 return;
             }
 
-            // // sort type
-            // std::vector<ComponentId>& type = archetype->type;
-            // for (ComponentId componentId : componentIds) {
-            //     if (std::find(type.begin(), type.end(), componentId) != type.end()) {
-            //         LOG_INFO("Archetype already contains Component ID = ", static_cast<u32>(componentId), ". Skip.");
-            //         continue;
-            //     }
-
-            //     type.push_back(componentId);
-            // }
-            // std::sort(type.begin(), type.end());
-
             // Assign and sort type
             archetype->type = componentIds;
             std::sort(archetype->type.begin(), archetype->type.end());

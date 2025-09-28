@@ -4,49 +4,42 @@
 #include "pch.hpp"
 
 namespace ecs {
-    struct Entity {
-        u32 id;
-    };
+    using EntityId = u32;
 
     class EntityManager {
     public:
         EntityManager() = default;
 
-        void createEntity() {
-            Entity e{mEntityId++};
-            mEntities.push_back(e);
-        };
+        EntityId createEntity() {
+            EntityId id = mEntityId++;
+            mEntities.push_back(id);
+            LOG_INFO("Created Entity ID = ", id);
+            return id;
+        }
 
-        void createEntities(usize amount) {
-            for (u32 i = 0; i < amount; ++i) {
-                createEntity();
+        void createEntities(usize amount, std::vector<EntityId>& outEntities) {
+            outEntities.reserve(outEntities.size() + amount);
+            for (usize i = 0; i < amount; ++i) {
+                outEntities.push_back(createEntity());
             }
         }
 
-        void deleteEntity(const Entity& entity) {
-            auto it = std::find_if(mEntities.begin(), mEntities.end(),
-                [entity](const Entity& e) { return e.id == entity.id; });
-
+        void deleteEntity(EntityId id) {
+            auto it = std::find(mEntities.begin(), mEntities.end(), id);
             if (it != mEntities.end()) {
                 std::iter_swap(it, mEntities.end() - 1);
                 mEntities.pop_back();
+                LOG_INFO("Deleted entity ID = ", id);
             }
-
-            LOG_INFO("Deleted entity ID = ", entity.id);
         }
 
-        // bool isValid(const Entity& entity) const {
-        //     return std::any_of(mEntities.begin(), mEntities.end(),
-        //         [&entity](const Entity& e) { return e.id == entity.id; });
-        // }
-
-        const std::vector<Entity>& getAllEntities() const {
+        const std::vector<EntityId>& getAllEntities() const {
             return mEntities;
         }
 
     private:
-        u32 mEntityId = 0;
-        std::vector<Entity> mEntities;
+        EntityId mEntityId = 0;
+        std::vector<EntityId> mEntities;
     };
 }
 

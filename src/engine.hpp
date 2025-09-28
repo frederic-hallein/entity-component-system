@@ -15,6 +15,9 @@ namespace ecs {
             mWindow = std::make_unique<Window>(title, width, height);
             mTimer = std::make_unique<Timer>();
 
+            // Create World
+            mWorld = std::make_unique<World>();
+
             LOG_INFO("Engine initialized");
         }
 
