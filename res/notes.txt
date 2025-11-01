@@ -1,2 +1,0 @@
-*** Resource Folder ***
-Directory for resources.

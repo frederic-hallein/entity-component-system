@@ -1,2 +1,0 @@
-*** Docs Folder ***
-Directory for the documentation.
