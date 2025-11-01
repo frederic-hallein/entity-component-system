@@ -1,6 +1,8 @@
 ./vscode
 debug/
 release/
+TODO.txt
+imgui.ini
 
 # CMake generated files
 CMakeCache.txt
