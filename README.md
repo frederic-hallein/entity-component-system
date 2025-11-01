@@ -61,7 +61,7 @@ To build the project, follow these steps:
     cmake --build build
     ```
 
-After these steps, the main executable will be located at ```build/ecs```.
+The main executable will be located at ```build/ecs```.
 
 ### Run
 
