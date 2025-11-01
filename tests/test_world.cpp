@@ -65,6 +65,7 @@ TEST(WorldTest, GetComponent_EntityWithPositionComponent) {
     EXPECT_FLOAT_EQ(pos->z, 0.0f);
 }
 
+// FIXME : ECS does not work properly for multiple components
 TEST(WorldTest, GetComponent_EntityWithMultipleComponents) {
     // Arrange
     World world;
